@@ -10,17 +10,6 @@
   align-items: center;
 }
 
-.input-title {
-  border: none;
-  background: none;
-  color: #FFF;
-  font-size: 32px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  border-bottom: 1px solid #323232;
-  width: 100%;
-}
 
 .form-label {
   display: flex;

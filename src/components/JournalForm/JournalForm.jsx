@@ -1,72 +1,84 @@
 import styles from './JournalForm.module.css';
 import Button from '../Button/Button';
-import { useState } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import cn from 'classnames';
+import { formReducer, INITIAL_STATE } from './JournalFormState';
+import Input from '../Input/Input';
 
 function JournalForm({ onSubmit }) {
-	const [formValidState, setFormValidState] = useState({
-		title: true,
-		post: true,
-		date: true
-	});
+	const [formState, dispatchForm] = useReducer(formReducer, INITIAL_STATE);
+	const { isValid, isFormReadyToSubmit, values } = formState;
+	const titleRef = useRef();
+	const dateRef = useRef();
+	const postRef = useRef();
+
+	const focusError = (isValid) => {
+		switch (true) {
+			case !isValid.title:
+				titleRef.current.focus();
+				break;
+			case !isValid.date:
+				dateRef.current.focus();
+				break;
+			case !isValid.post:
+				postRef.current.focus();
+				break;
+		}
+	};
+
+	useEffect(() => {
+		let timerId;
+		if (!isValid.date || !isValid.title || !isValid.post) {
+			focusError(isValid);
+			timerId = setTimeout(() => {
+				dispatchForm({ type: 'RESET_VALIDITY' });
+			}, 2000);
+		}
+		return () => {
+			clearTimeout(timerId);
+		};
+	}, [isValid]);
+
+	useEffect(() => {
+		if (isFormReadyToSubmit) {
+			onSubmit(values);
+			dispatchForm({ type: 'CLEAR' });
+		}
+	}, [isFormReadyToSubmit, values, onSubmit]);
+
+	const onChange = (e) => {
+		dispatchForm({ type: 'SET_VALUE', payload: { [e.target.name]: e.target.value } });
+	};
 
 	const addJournalItem = (e) => {
 		e.preventDefault();
-		const formData = new FormData(e.target);
-		const formProps = Object.fromEntries(formData);
-		let isFormValid = true;
-		if (!formProps.title?.trim().length) {
-			setFormValidState(state => ({...state, title: false}));
-			isFormValid = false;
-		} else {
-			setFormValidState(state => ({...state, title: true}));
-		}
-		if (!formProps.post?.trim().length) {
-			setFormValidState(state => ({...state, post: false}));
-			isFormValid = false;
-		} else {
-			setFormValidState(state => ({...state, post: true}));
-		}
-		if (!formProps.date) {
-			setFormValidState(state => ({...state, date: false}));
-			isFormValid = false;
-		} else {
-			setFormValidState(state => ({...state, date: true}));
-		}
-		if (!isFormValid) {
-			return;
-		}
-		onSubmit(formProps);
+		dispatchForm({ type: 'SUBMIT' });
 	};
 
-	return  (
+	return (
 		<>
 			<form className={styles['journal-form']} onSubmit={addJournalItem}>
-				<div className="title-wrapper">
-					<input type="text" name='title' className={cn(styles ['input-title'], {
-						[styles['invalid']] : !formValidState.title
-					})}/>
+				<div className={styles['title-wrapper']}>
+					<Input type="text" ref={titleRef} isValid={isValid.title} onChange={onChange} value={values.title} name='title' appearance="title" />
 				</div>
 				<div className={styles['form-row']}>
 					<label htmlFor="date" className={styles['form-label']}>
 						<img src="/calendar.svg" alt="Календарь" />
 						<span>Дата</span>
 					</label>
-					<input type="date" name='date' id='date' className={cn(styles['input'], {
-						[styles['invalid']] : !formValidState.date
-					})}/>
+					<Input type="date" ref={dateRef} isValid={isValid.date} onChange={onChange} value={values.date} name='date' id='date' />
 				</div>
 				<div className={styles['form-row']}>
 					<label htmlFor="tag" className={styles['form-label']}>
 						<img src="/folder.svg" alt="Метки" />
 						<span>Метки</span>
 					</label>
-					<input type="text" id='tag' name='tag' className={styles['input']}/>
+					<Input type="text" onChange={onChange} value={values.tag} id='tag' name='tag' />
 				</div>
-				<textarea name="post" id="" cols="30" rows="10" className={cn(styles['input'], {
-					[styles['invalid']] : !formValidState.post
+				<textarea name="post" ref={postRef} onChange={onChange} value={values.post} id="" cols="30" rows="10" className={cn(styles['input'], {
+					[styles['invalid']]: !isValid.post
 				})}></textarea>
-				<Button text="Сохранить"/>
+				<Button text="Сохранить" />
 			</form>
 		</>
 	);

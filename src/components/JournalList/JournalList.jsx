@@ -19,9 +19,9 @@ function JournalList({ items }) {
 		{items.sort(sortItems).map(el => (
 			<CardButton key={el.id}>
 				<JournalItem
-					title = {el.title}
-					date = {el.date}
-					text = {el.text}
+					title={el.title}
+					date={el.date}
+					post={el.post}
 				/>
 			</CardButton>
 		))}
