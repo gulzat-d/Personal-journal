@@ -40,3 +40,17 @@
 .invalid {
   border: 1px solid red;
 }
+
+.deleteCard{
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  height: 30px;
+  width: 30px;
+}
+
+.deleteCard:hover{
+  background: rgb(255, 255, 255, 0.05);
+  border-radius: 50%;
+}

@@ -1,0 +1,15 @@
+.selectUser {
+	padding: 10px;
+	background: none;
+	font-size: 16px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: normal;
+	border-radius: 3px;
+	color: #FFF;
+	border: 1px solid #323232;
+	width: 100%;
+}
+option {
+	background: rgb(43, 43, 43);
+}
